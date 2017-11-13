@@ -48,6 +48,7 @@ app.use(passport.initialize());
  */
 app.use(api);
 app.use(express.static(path.join(__dirname, '..', 'public')));
+app.use(express.static(path.join(__dirname, '..', 'src')));
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'shared', 'index.html'));

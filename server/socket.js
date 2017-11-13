@@ -1,4 +1,5 @@
 import constants from '../shared/socketConstants';
+import _ from 'lodash';
 
 const setupSocket = io => {
     const {
@@ -17,11 +18,12 @@ const setupSocket = io => {
 
     let connectedUsers = 0;
 
-    io.use((socket, next) => {
-        console.log("Query: ", socket.handshake.query);
+    // you can add additional middleware
+    // io.use((socket, next) => {
+    //     console.log("Query: ", socket.handshake.query);
+    //     next();
+    // })
 
-        next();
-    })
     io.sockets.on(CONNECTION, function (socket) {
         console.log(CONNECTION);
         let userLogged = false;

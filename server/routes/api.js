@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import Debug from 'debug';
-import authRoutes from './auth';
-import appRoutes from './appRoutes';
+import appRoutes from './routes';
 
 const apiRouter = new Router();
 // Debug messages are visible only if process.env.DEBUG matches string passed as argument to Degub(...)

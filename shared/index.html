@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>PanicMultiplatformer</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ"
+        crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.4/lodash.min.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0, maximum-scale=1, minimum-scale=1">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font: 13px Helvetica, Arial;
+        }
+
+        form {
+            background: #000;
+            padding: 3px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        form input {
+            border: 0;
+            padding: 10px;
+            width: 90%;
+            margin-right: .5%;
+        }
+
+        form button {
+            width: 9%;
+            background: rgb(130, 224, 255);
+            border: none;
+            padding: 10px;
+        }
+
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #messages li {
+            padding: 5px 10px;
+        }
+
+        #messages li:nth-child(odd) {
+            background: #eee;
+        }
+    </style>
+</head>
+
+<body>
+    <ul id="messages"></ul>
+    <form action="">
+        <input id="m" autocomplete="off" /><button>Send</button>
+    </form>
+
+    <div id="target" style="background: wheat; height: 300px; width:300px;">
+        Move here
+        <div id="markers" style="height:100%; width: 100%;">
+            <img id="me" src="/marker_red.png" />
+        </diV>
+    </div>
+    <div>
+        Trigger the handler
+    </div>
+    <div id="log">
+        <span/>
+        <span/>
+    </div>
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        $(function () {
+            var socket = io();
+            const user = {
+                name: 'Sami',
+                playerID: 1
+            }
+            socket.emit('ADD_USER', { user });
+            $('form').submit(function () {
+                socket.emit('chat message', $('#m').val());
+                $('#m').val('');
+                return false;
+            });
+
+            socket.on('CURSOR_LOCATION', function (data) {
+                if (data.playerID !== user.playerID) {
+                    let marker;
+                    if ($(`#marker${data.playerID}`)) {
+                        marker = $(`<img id="#marker${data.playerID}" src="/marker_red.png"/>`);
+                        $('#markers').append(marker);
+                    } else {
+                        marker = $(`#marker${data.playerID}`);
+                    }
+                    console.log(data.playerID);
+                    marker.offset({ top: data.coords.y, left: data.coords.x });
+                }
+            })
+
+            $("#target").mousemove(_.debounce(function (event) {
+                var pageCoords = "( " + event.pageX + ", " + event.pageY + " )";
+                var clientCoords = "( " + event.clientX + ", " + event.clientY + " )";
+                $("span:first").text("( event.pageX, event.pageY ) : " + pageCoords);
+                $("span:last").text("( event.clientX, event.clientY ) : " + clientCoords);
+                const coords = {
+                    page: {
+                        x: event.pageX,
+                        y: event.pageY
+                    },
+                    client: {
+                        x: event.clientX,
+                        y: event.clientY
+                    }
+                }
+                $('#me').offset({ top: coords.client.y, left: coords.client.x });
+                socket.emit('CURSOR_LOCATION', coords);
+            }, 0)
+            );
+        });
+    </script>
+</body>
+
+</html>

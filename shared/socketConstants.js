@@ -1,0 +1,12 @@
+
+export default {
+    CONNECTION: 'connection',
+    DISCONNECT: 'disconnect',
+    SELECT_ROOM: 'SELECT_ROOM',
+    LOGIN: 'LOGIN',
+    LOGOUT: 'LOGOUT',
+    USER_LEFT: 'USER_LEFT',
+    USER_JOINED: 'USER_JOINED',
+    ADD_USER: 'ADD_USER',
+    CURSOR_LOCATION: 'CURSOR_LOCATION'
+}

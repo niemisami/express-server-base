@@ -4,20 +4,30 @@ import Debug from 'debug';
 import bodyparser from 'body-parser';
 import compress from 'compression';
 
+import { createServer } from 'http';
+import SocketIo from 'socket.io';
+
 // Authentication
 import helmet from 'helmet';
 import passport from 'passport';
 import cookieParser from 'cookie-parser';
+import path from 'path'
 
 import config from './config';
 import api from './routes/api';
-
-
+import setupSocket from './socket';
 /**
  * SERVER INITIALIZATION
  * */
 const app = express();
 const port = config.port || 3000;
+
+// Socket setup
+const server = createServer(app);
+const io = new SocketIo(server);
+// Socket functions 
+setupSocket(io);
+
 
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({ extended: false }));
@@ -37,12 +47,13 @@ app.use(passport.initialize());
  * Routes
  */
 app.use(api);
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 app.get('/', (req, res) => {
-  res.status(200).send({ message: 'ok' });
+  res.sendFile(path.join(__dirname, '..', 'shared', 'index.html'));
 });
 
-app.listen(port, err => {
+server.listen(port, err => {
   if (err) {
     console.log(err);
   } else {
